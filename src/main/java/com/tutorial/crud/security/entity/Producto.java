@@ -1,4 +1,4 @@
-package com.tutorial.crud.entity;
+package com.tutorial.crud.security.entity;
 
 import java.io.Serializable;
 
