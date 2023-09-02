@@ -1,13 +1,11 @@
 package com.tutorial.crud.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -73,6 +71,27 @@ public class ProductController {
     public ResponseEntity<Mensaje> update(@PathVariable("id") int id, @RequestBody ProductoDto productoDto){
         if(!productoService.existsById(id))
             return new ResponseEntity<Mensaje>(new Mensaje("El producto no existe"), HttpStatus.NOT_FOUND);
-        if(productoService.existsByNombre(null))
+        if(productoService.existsByNombre(productoDto.getNombre()) && productoService.getByNombre(productoDto.getNombre()).get().getId() != id)
+            return new ResponseEntity<Mensaje>(new Mensaje("El nombre " + productoDto.getNombre() + "ya se encuentra registrado"), HttpStatus.BAD_REQUEST);
+
+        if(StringUtils.isBlank(productoDto.getNombre()))
+            return new ResponseEntity<Mensaje>(new Mensaje("El nombre del producto es obligatiorio"), HttpStatus.BAD_REQUEST);
+        if(productoDto.getPrecio()==null || productoDto.getPrecio()<0)
+            return new ResponseEntity<Mensaje>(new Mensaje("El precio debe ser mayor que 0.0"), HttpStatus.BAD_REQUEST);
+
+        
+        Producto producto = productoService.getOne(id).get();
+        producto.setNombre(producto.getNombre());
+        producto.setPrecio(producto.getPrecio());
+        productoService.save(producto);
+        return new ResponseEntity<Mensaje>(new Mensaje("Producto actualizado con exito"), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Mensaje> delete(@PathVariable("id")int id){
+        if(!productoService.existsById(id))
+            return new ResponseEntity<Mensaje>(new Mensaje ("EL producto a eliminar no existe"), HttpStatus.NOT_FOUND);
+        productoService.delete(id);
+        return new ResponseEntity<Mensaje>(new Mensaje("Producto eliminado"), HttpStatus.OK);
     }
 }
