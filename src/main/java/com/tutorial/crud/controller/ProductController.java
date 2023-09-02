@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,7 +51,7 @@ public class ProductController {
         Producto producto = productoService.getByNombre(nombre).get();
         return new ResponseEntity<Producto>(producto, HttpStatus.OK);
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("")
     public ResponseEntity<Mensaje> create(@RequestBody ProductoDto productoDto){
         if(StringUtils.isBlank(productoDto.getNombre()))
@@ -66,7 +67,7 @@ public class ProductController {
         productoService.save(producto);
         return new ResponseEntity<Mensaje>(new Mensaje("Producto creado con exito"), HttpStatus.CREATED);
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<Mensaje> update(@PathVariable("id") int id, @RequestBody ProductoDto productoDto){
         if(!productoService.existsById(id))
@@ -86,7 +87,7 @@ public class ProductController {
         productoService.save(producto);
         return new ResponseEntity<Mensaje>(new Mensaje("Producto actualizado con exito"), HttpStatus.OK);
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Mensaje> delete(@PathVariable("id")int id){
         if(!productoService.existsById(id))
